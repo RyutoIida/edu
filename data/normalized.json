@@ -1,0 +1,749 @@
+[
+  {
+    "id": "FR-001",
+    "feature": "ログイン",
+    "category": "functional",
+    "statement": "ログイン画面はアプリ起動直後に表示される。",
+    "acceptance_criteria": [
+      "Given アプリが起動している",
+      "When ユーザーがアプリを開いた時",
+      "Then ログイン画面が表示される"
+    ],
+    "priority": "Should",
+    "status": "検討中",
+    "source": {
+      "speaker": "Client",
+      "timestamp": "2024-11-20T13:00:00"
+    },
+    "rationale": "",
+    "dependencies": [],
+    "supersedes": [],
+    "tags": []
+  },
+  {
+    "id": "FR-002",
+    "feature": "ログイン",
+    "category": "functional",
+    "statement": "起動直後にログイン画面を表示しなければならない。",
+    "acceptance_criteria": [
+      "Given アプリケーションが起動している",
+      "When ユーザーがアプリケーションを開いたとき",
+      "Then ログイン画面が表示される"
+    ],
+    "priority": "Should",
+    "status": "情報",
+    "source": {
+      "speaker": "Engineer",
+      "timestamp": "2024-11-20T13:01:00"
+    },
+    "rationale": "",
+    "dependencies": [],
+    "supersedes": [],
+    "tags": []
+  },
+  {
+    "id": "DEC-001",
+    "feature": "ログイン",
+    "category": "decision",
+    "statement": "ログイン画面は初期表示されなければならない。",
+    "acceptance_criteria": [
+      "Given ユーザーがログインページを開いている",
+      "When ログインページが読み込まれたとき",
+      "Then ログインフォームが画面に表示される"
+    ],
+    "priority": "Must",
+    "status": "決定",
+    "source": {
+      "speaker": "PM",
+      "timestamp": "2024-11-20T13:02:00"
+    },
+    "rationale": "",
+    "dependencies": [],
+    "supersedes": [],
+    "tags": []
+  },
+  {
+    "id": "FR-003",
+    "feature": "通知",
+    "category": "functional",
+    "statement": "通知機能は今回は見送り、次フェーズで再検討する。",
+    "acceptance_criteria": [],
+    "priority": "Should",
+    "status": "検討中",
+    "source": {
+      "speaker": "Client",
+      "timestamp": "2024-11-20T13:03:00"
+    },
+    "rationale": "",
+    "dependencies": [],
+    "supersedes": [],
+    "tags": []
+  },
+  {
+    "id": "DEC-002",
+    "feature": "通知",
+    "category": "decision",
+    "statement": "通知は今回のリリース範囲から除外される。",
+    "acceptance_criteria": [],
+    "priority": "Must",
+    "status": "決定",
+    "source": {
+      "speaker": "PM",
+      "timestamp": "2024-11-20T13:04:00"
+    },
+    "rationale": "",
+    "dependencies": [],
+    "supersedes": [],
+    "tags": []
+  },
+  {
+    "id": "FR-004",
+    "feature": "ログイン",
+    "category": "functional",
+    "statement": "ログインボタンは右下に固定されなければならない。",
+    "acceptance_criteria": [
+      "Given ログイン画面が表示されている",
+      "When ユーザーが画面をスクロールする",
+      "Then ログインボタンが常に右下に表示される"
+    ],
+    "priority": "Should",
+    "status": "検討中",
+    "source": {
+      "speaker": "Designer",
+      "timestamp": "2024-11-20T13:05:00"
+    },
+    "rationale": "",
+    "dependencies": [],
+    "supersedes": [],
+    "tags": []
+  },
+  {
+    "id": "FR-005",
+    "feature": "その他",
+    "category": "functional",
+    "statement": "UI案は保留し、別の案と比較しなければならない。",
+    "acceptance_criteria": [
+      "Given UI案が保留されている場合 When 別案を比較するとき Then 比較が完了すること"
+    ],
+    "priority": "Should",
+    "status": "情報",
+    "source": {
+      "speaker": "PM",
+      "timestamp": "2024-11-20T13:07:00"
+    },
+    "rationale": "",
+    "dependencies": [],
+    "supersedes": [],
+    "tags": []
+  },
+  {
+    "id": "FR-006",
+    "feature": "権限",
+    "category": "functional",
+    "statement": "管理者はユーザー一覧を閲覧できる。",
+    "acceptance_criteria": [
+      "Given 管理者がログインしている",
+      "When ユーザー一覧画面にアクセスすると",
+      "Then ユーザー一覧が表示される"
+    ],
+    "priority": "Should",
+    "status": "検討中",
+    "source": {
+      "speaker": "Client",
+      "timestamp": "2024-11-20T13:10:00"
+    },
+    "rationale": "",
+    "dependencies": [],
+    "supersedes": [],
+    "tags": []
+  },
+  {
+    "id": "FR-007",
+    "feature": "権限",
+    "category": "functional",
+    "statement": "閲覧は可能である。編集と削除は権限次第である。",
+    "acceptance_criteria": [
+      "Given ユーザーが閲覧権限を持っている場合 When ページを開くと Then コンテンツが表示される",
+      "Given ユーザーが編集権限を持っている場合 When コンテンツを編集すると Then 変更が保存される",
+      "Given ユーザーが削除権限を持っている場合 When コンテンツを削除すると Then コンテンツが削除される"
+    ],
+    "priority": "Should",
+    "status": "情報",
+    "source": {
+      "speaker": "Engineer",
+      "timestamp": "2024-11-20T13:11:00"
+    },
+    "rationale": "",
+    "dependencies": [],
+    "supersedes": [],
+    "tags": []
+  },
+  {
+    "id": "FR-008",
+    "feature": "権限",
+    "category": "functional",
+    "statement": "編集と削除は管理者に許可されなければならない。",
+    "acceptance_criteria": [
+      "Given ユーザーが管理者である場合 When 編集または削除を試みると Then 処理が成功する",
+      "Given ユーザーが一般ユーザーである場合 When 編集または削除を試みると Then 処理が失敗する"
+    ],
+    "priority": "Should",
+    "status": "検討中",
+    "source": {
+      "speaker": "Client",
+      "timestamp": "2024-11-20T13:12:00"
+    },
+    "rationale": "",
+    "dependencies": [],
+    "supersedes": [],
+    "tags": []
+  },
+  {
+    "id": "DEC-003",
+    "feature": "権限",
+    "category": "decision",
+    "statement": "管理者は編集・削除の権限を持たなければならない。",
+    "acceptance_criteria": [
+      "Given 管理者がログインしている場合",
+      "When 管理者がユーザー情報を編集または削除しようとすると",
+      "Then 編集・削除の操作が成功すること"
+    ],
+    "priority": "Must",
+    "status": "決定",
+    "source": {
+      "speaker": "PM",
+      "timestamp": "2024-11-20T13:13:00"
+    },
+    "rationale": "",
+    "dependencies": [],
+    "supersedes": [],
+    "tags": []
+  },
+  {
+    "id": "FR-009",
+    "feature": "その他",
+    "category": "functional",
+    "statement": "色はブランドカラーのブルー基調とする。",
+    "acceptance_criteria": [
+      "Given ブランドカラーがブルーである場合、",
+      "When 色を選択するとき、",
+      "Then ブルー基調の色を選択しなければならない。"
+    ],
+    "priority": "Should",
+    "status": "検討中",
+    "source": {
+      "speaker": "Designer",
+      "timestamp": "2024-11-20T13:14:00"
+    },
+    "rationale": "",
+    "dependencies": [],
+    "supersedes": [],
+    "tags": []
+  },
+  {
+    "id": "FR-010",
+    "feature": "その他",
+    "category": "functional",
+    "statement": "色指定はデザインガイドに追記されるものとする。",
+    "acceptance_criteria": [
+      "Given 次回レビューが行われる際",
+      "When 色指定がデザインガイドに追記されている場合",
+      "Then 最終決定が行われること"
+    ],
+    "priority": "Should",
+    "status": "情報",
+    "source": {
+      "speaker": "PM",
+      "timestamp": "2024-11-20T13:16:00"
+    },
+    "rationale": "",
+    "dependencies": [],
+    "supersedes": [],
+    "tags": []
+  },
+  {
+    "id": "NFR-001",
+    "feature": "性能",
+    "category": "nonfunctional",
+    "statement": "初回表示は3秒以内である。",
+    "acceptance_criteria": [
+      "Given the system is running",
+      "When the user opens the application for the first time",
+      "Then the initial display should load within 3 seconds"
+    ],
+    "priority": "Should",
+    "status": "検討中",
+    "source": {
+      "speaker": "Engineer",
+      "timestamp": "2024-11-20T13:17:00"
+    },
+    "rationale": "",
+    "dependencies": [],
+    "supersedes": [],
+    "tags": []
+  },
+  {
+    "id": "NFR-002",
+    "feature": "性能",
+    "category": "nonfunctional",
+    "statement": "システムは、全ての機能が3秒以内に応答する必要がある。",
+    "acceptance_criteria": [
+      "Given システムが稼働している",
+      "When ユーザーがリクエストを送信する",
+      "Then システムは3秒以内に応答する"
+    ],
+    "priority": "Should",
+    "status": "情報",
+    "source": {
+      "speaker": "Client",
+      "timestamp": "2024-11-20T13:18:00"
+    },
+    "rationale": "",
+    "dependencies": [],
+    "supersedes": [],
+    "tags": []
+  },
+  {
+    "id": "DEC-004",
+    "feature": "性能",
+    "category": "decision",
+    "statement": "初回表示は3秒以内である。",
+    "acceptance_criteria": [
+      "Given ユーザーがアプリを起動するとき",
+      "When アプリが初回表示を行うとき",
+      "Then 表示が3秒以内に完了する"
+    ],
+    "priority": "Must",
+    "status": "決定",
+    "source": {
+      "speaker": "PM",
+      "timestamp": "2024-11-20T13:19:00"
+    },
+    "rationale": "",
+    "dependencies": [],
+    "supersedes": [],
+    "tags": []
+  },
+  {
+    "id": "FR-011",
+    "feature": "ログイン",
+    "category": "functional",
+    "statement": "ログイン成功時にトースト通知が表示される。",
+    "acceptance_criteria": [
+      "Given ユーザーがログイン画面にアクセスしている",
+      "When ユーザーが正しいユーザー名とパスワードを入力してログインボタンをクリックする",
+      "Then 画面にログイン成功のトースト通知が表示される"
+    ],
+    "priority": "Should",
+    "status": "検討中",
+    "source": {
+      "speaker": "Client",
+      "timestamp": "2024-11-20T13:20:00"
+    },
+    "rationale": "",
+    "dependencies": [],
+    "supersedes": [],
+    "tags": []
+  },
+  {
+    "id": "FR-012",
+    "feature": "通知",
+    "category": "functional",
+    "statement": "トースト表示が行われた場合、追加工数は小である。",
+    "acceptance_criteria": [
+      "Given トースト表示が行われている",
+      "When 追加工数を確認する",
+      "Then 追加工数は小である"
+    ],
+    "priority": "Should",
+    "status": "情報",
+    "source": {
+      "speaker": "Engineer",
+      "timestamp": "2024-11-20T13:21:00"
+    },
+    "rationale": "",
+    "dependencies": [],
+    "supersedes": [],
+    "tags": []
+  },
+  {
+    "id": "FR-013",
+    "feature": "通知",
+    "category": "functional",
+    "statement": "通知は除外することとする。",
+    "acceptance_criteria": [
+      "Given 通知が除外されることが決定されている",
+      "When 方針が変更される場合",
+      "Then 通知が除外されないことを確認する"
+    ],
+    "priority": "Should",
+    "status": "検討中",
+    "source": {
+      "speaker": "PM",
+      "timestamp": "2024-11-20T13:22:00"
+    },
+    "rationale": "",
+    "dependencies": [],
+    "supersedes": [],
+    "tags": []
+  },
+  {
+    "id": "DEC-005",
+    "feature": "通知",
+    "category": "decision",
+    "statement": "通知は今回リリースから除外とする。",
+    "acceptance_criteria": [
+      "Given 通知機能がリリース対象である場合",
+      "When 通知機能が除外される場合",
+      "Then 通知機能は最終決定となる。"
+    ],
+    "priority": "Must",
+    "status": "決定",
+    "source": {
+      "speaker": "PM",
+      "timestamp": "2024-11-20T13:24:00"
+    },
+    "rationale": "",
+    "dependencies": [],
+    "supersedes": [],
+    "tags": []
+  },
+  {
+    "id": "FR-014",
+    "feature": "ログイン",
+    "category": "functional",
+    "statement": "ログイン時のエラーメッセージ文言は短くする。",
+    "acceptance_criteria": [
+      "Given ユーザーが誤ったパスワードでログインしようとしている",
+      "When エラーメッセージが表示される",
+      "Then エラーメッセージが短いことを確認する"
+    ],
+    "priority": "Should",
+    "status": "検討中",
+    "source": {
+      "speaker": "Designer",
+      "timestamp": "2024-11-20T13:25:00"
+    },
+    "rationale": "",
+    "dependencies": [],
+    "supersedes": [],
+    "tags": []
+  },
+  {
+    "id": "FR-015",
+    "feature": "その他",
+    "category": "functional",
+    "statement": "ユーザーが入力したメールアドレスまたはパスワードが正しくない場合、システムは『メールまたはパスワードが違います』というメッセージを表示しなければならない。",
+    "acceptance_criteria": [
+      "Given ユーザーが間違ったメールアドレスまたはパスワードを入力している",
+      "When ログインボタンをクリックする",
+      "Then システムは『メールまたはパスワードが違います』というメッセージを表示する"
+    ],
+    "priority": "Should",
+    "status": "検討中",
+    "source": {
+      "speaker": "Client",
+      "timestamp": "2024-11-20T13:26:00"
+    },
+    "rationale": "",
+    "dependencies": [],
+    "supersedes": [],
+    "tags": []
+  },
+  {
+    "id": "DEC-006",
+    "feature": "文言",
+    "category": "decision",
+    "statement": "その文言で決定する。",
+    "acceptance_criteria": [
+      "Given 文言が与えられたとき",
+      "When 決定が行われるとき",
+      "Then 決定がその文言で行われること"
+    ],
+    "priority": "Must",
+    "status": "決定",
+    "source": {
+      "speaker": "PM",
+      "timestamp": "2024-11-20T13:27:00"
+    },
+    "rationale": "",
+    "dependencies": [],
+    "supersedes": [],
+    "tags": []
+  },
+  {
+    "id": "NFR-003",
+    "feature": "保持",
+    "category": "nonfunctional",
+    "statement": "ログ保存の保持期間は、システム管理者が設定できるようにしなければならない。",
+    "acceptance_criteria": [
+      "Given システム管理者がログ保存の保持期間を設定する機能がある場合 When 管理者が保持期間を設定する Then 期間が正しく設定される"
+    ],
+    "priority": "Should",
+    "status": "検討中",
+    "source": {
+      "speaker": "Engineer",
+      "timestamp": "2024-11-20T13:28:00"
+    },
+    "rationale": "",
+    "dependencies": [],
+    "supersedes": [],
+    "tags": []
+  },
+  {
+    "id": "DEC-007",
+    "feature": "保持",
+    "category": "decision",
+    "statement": "ログの保持期間は90日とする。",
+    "acceptance_criteria": [
+      "Given ログの保持期間が設定されていない場合",
+      "When 保持期間を90日に設定する",
+      "Then ログの保持期間は90日である"
+    ],
+    "priority": "Must",
+    "status": "決定",
+    "source": {
+      "speaker": "PM",
+      "timestamp": "2024-11-20T13:30:00"
+    },
+    "rationale": "",
+    "dependencies": [],
+    "supersedes": [],
+    "tags": []
+  },
+  {
+    "id": "FR-016",
+    "feature": "チュートリアル",
+    "category": "functional",
+    "statement": "初回オンボーディング時にチュートリアルを追加しなければならない。",
+    "acceptance_criteria": [
+      "Given ユーザーが初回ログインしている",
+      "When チュートリアルが表示される",
+      "Then ユーザーはチュートリアルをスキップできない"
+    ],
+    "priority": "Should",
+    "status": "検討中",
+    "source": {
+      "speaker": "Client",
+      "timestamp": "2024-11-20T13:33:00"
+    },
+    "rationale": "",
+    "dependencies": [],
+    "supersedes": [],
+    "tags": []
+  },
+  {
+    "id": "FR-017",
+    "feature": "その他",
+    "category": "functional",
+    "statement": "この機能は、3ステップで実装可能である。",
+    "acceptance_criteria": [
+      "Given 前提条件が満たされている場合",
+      "When 特定のアクションが実行されたとき",
+      "Then 期待する結果が得られること"
+    ],
+    "priority": "Should",
+    "status": "情報",
+    "source": {
+      "speaker": "Engineer",
+      "timestamp": "2024-11-20T13:34:00"
+    },
+    "rationale": "",
+    "dependencies": [],
+    "supersedes": [],
+    "tags": []
+  },
+  {
+    "id": "DEC-008",
+    "feature": "チュートリアル",
+    "category": "decision",
+    "statement": "チュートリアルは入門用の簡易版である。",
+    "acceptance_criteria": [
+      "Given チュートリアルが入門用の簡易版である場合",
+      "When ユーザーがチュートリアルを開始すると",
+      "Then ユーザーは入門用の簡易版のチュートリアルを利用できる"
+    ],
+    "priority": "Must",
+    "status": "決定",
+    "source": {
+      "speaker": "PM",
+      "timestamp": "2024-11-20T13:35:00"
+    },
+    "rationale": "",
+    "dependencies": [],
+    "supersedes": [],
+    "tags": []
+  },
+  {
+    "id": "FR-018",
+    "feature": "その他",
+    "category": "functional",
+    "statement": "リリース日は12月20日とする。",
+    "acceptance_criteria": [
+      "Given リリース日が12月20日の場合",
+      "When リリースを実施するとき",
+      "Then 正常にリリースが完了すること"
+    ],
+    "priority": "Should",
+    "status": "検討中",
+    "source": {
+      "speaker": "Client",
+      "timestamp": "2024-11-20T13:36:00"
+    },
+    "rationale": "",
+    "dependencies": [],
+    "supersedes": [],
+    "tags": []
+  },
+  {
+    "id": "FR-019",
+    "feature": "その他",
+    "category": "functional",
+    "statement": "テスト期間を考慮すると、12月20日までに実装することが可能である。",
+    "acceptance_criteria": [
+      "Given テスト期間が考慮されている場合 When 12月20日までに実装する Then 実装が完了していること"
+    ],
+    "priority": "Should",
+    "status": "情報",
+    "source": {
+      "speaker": "Engineer",
+      "timestamp": "2024-11-20T13:37:00"
+    },
+    "rationale": "",
+    "dependencies": [],
+    "supersedes": [],
+    "tags": []
+  },
+  {
+    "id": "FR-020",
+    "feature": "その他",
+    "category": "functional",
+    "statement": "リリース候補日は12/20とする。",
+    "acceptance_criteria": [
+      "Given リリース候補日が12/20である",
+      "When 最終決定が来週のゲートである",
+      "Then リリース候補日は暫定合意となる"
+    ],
+    "priority": "Should",
+    "status": "情報",
+    "source": {
+      "speaker": "PM",
+      "timestamp": "2024-11-20T13:38:00"
+    },
+    "rationale": "",
+    "dependencies": [],
+    "supersedes": [],
+    "tags": []
+  },
+  {
+    "id": "FR-021",
+    "feature": "ログイン",
+    "category": "functional",
+    "statement": "ログインボタンは、右下ではなく中央下寄せに配置されなければならない。",
+    "acceptance_criteria": [
+      "Given ログイン画面が表示されている",
+      "When ユーザーが画面をスクロールしない状態でログインボタンを見る",
+      "Then ログインボタンは中央下寄せに配置されている"
+    ],
+    "priority": "Should",
+    "status": "検討中",
+    "source": {
+      "speaker": "Designer",
+      "timestamp": "2024-11-20T13:39:00"
+    },
+    "rationale": "",
+    "dependencies": [],
+    "supersedes": [],
+    "tags": []
+  },
+  {
+    "id": "FR-022",
+    "feature": "ボタン位置",
+    "category": "functional",
+    "statement": "ボタンは中央下寄せとする。",
+    "acceptance_criteria": [
+      "Given 画面が表示されている時",
+      "When ボタンを探すとき",
+      "Then ボタンは画面の中央下部に配置されていること"
+    ],
+    "priority": "Should",
+    "status": "情報",
+    "source": {
+      "speaker": "Client",
+      "timestamp": "2024-11-20T13:40:00"
+    },
+    "rationale": "",
+    "dependencies": [],
+    "supersedes": [],
+    "tags": []
+  },
+  {
+    "id": "DEC-009",
+    "feature": "ログイン",
+    "category": "decision",
+    "statement": "ボタン位置は『中央下寄せ』とする。",
+    "acceptance_criteria": [
+      "Given ログイン画面が表示されている場合",
+      "When ユーザーが画面を見たとき",
+      "Then ログインボタンが中央下寄せに配置されていること"
+    ],
+    "priority": "Must",
+    "status": "決定",
+    "source": {
+      "speaker": "PM",
+      "timestamp": "2024-11-20T13:41:00"
+    },
+    "rationale": "",
+    "dependencies": [],
+    "supersedes": [],
+    "tags": []
+  },
+  {
+    "id": "FR-023",
+    "feature": "その他",
+    "category": "functional",
+    "statement": "ステージング環境のURLは来週共有される。",
+    "acceptance_criteria": [
+      "Given ステージング環境が準備されている場合",
+      "When 来週になる",
+      "Then URLが共有される"
+    ],
+    "priority": "Should",
+    "status": "情報",
+    "source": {
+      "speaker": "Engineer",
+      "timestamp": "2024-11-20T13:42:00"
+    },
+    "rationale": "",
+    "dependencies": [],
+    "supersedes": [],
+    "tags": []
+  },
+  {
+    "id": "DEC-010",
+    "feature": "ログイン",
+    "category": "decision",
+    "statement": "ログイン時、以下の条件を満たすこと。ログイン画面の初期表示は採用し、通知は除外する。管理者が編集削除を行う場合は採用し、初回表示が3秒以内であること。",
+    "acceptance_criteria": [
+      "Given ログイン画面を開いた時",
+      "When 初期表示を確認すると",
+      "Then 採用された画面が表示され、通知は除外されていること",
+      "Given 管理者が編集削除を行う場合",
+      "When 編集削除を実行すると",
+      "Then 採用された処理が実行されること",
+      "Given ログイン時の初回表示が行われる際",
+      "When 表示までの時間を計測すると",
+      "Then 3秒以内に初回表示が完了すること"
+    ],
+    "priority": "Must",
+    "status": "決定",
+    "source": {
+      "speaker": "PM",
+      "timestamp": "2024-11-20T13:44:00"
+    },
+    "rationale": "",
+    "dependencies": [],
+    "supersedes": [],
+    "tags": []
+  }
+]

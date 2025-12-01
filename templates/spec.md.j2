@@ -1,0 +1,66 @@
+# 要件定義書
+
+生成日時: {{ generated_at }}
+対象ログ: {{ source }}
+
+## 1. 機能要件
+{% for r in fr %}
+- **{{ r.id }}** [{{ r.feature }}] {{ r.statement }}
+    - 受け入れ条件:
+    {% if r.acceptance_criteria and r.acceptance_criteria|length>0 %}
+    {% for ac in r.acceptance_criteria %}
+        - {{ ac }}
+    {% endfor %}
+    {% else %}
+        - （未定義）
+    {% endif %}
+    - 優先度: {{ r.priority }} / 状態: {{ r.status }}
+    - 根拠: {{ r.source.speaker }} {{ r.source.timestamp }}
+{% endfor %}
+
+## 2. 非機能要件
+{% if nfr|length > 0 %}
+{% for r in nfr %}
+- **{{ r.id }}** [{{ r.feature }}] {{ r.statement }}
+    - 受け入れ条件:
+    {% if r.acceptance_criteria and r.acceptance_criteria|length>0 %}
+    {% for ac in r.acceptance_criteria %}
+        - {{ ac }}
+    {% endfor %}
+    {% else %}
+        - （未定義）
+    {% endif %}
+    - 優先度: {{ r.priority }} / 状態: {{ r.status }}
+    - 根拠: {{ r.source.speaker }} {{ r.source.timestamp }}
+    {% endfor %}
+    {% else %}
+    - （該当なし）
+{% endif %}
+
+## 3. 決定事項/ 変更管理
+{% if dec|length > 0 %}
+{% for r in dec %}
+- **{{ r.id }}** [{{ r.feature }}] {{ r.statement }}
+    - 受け入れ条件:
+    {% if r.acceptance_criteria and r.acceptance_criteria|length>0 %}
+    {% for ac in r.acceptance_criteria %}
+        - {{ ac }}
+    {% endfor %}
+    {% else %}
+        - （不要/または未定義）
+    {% endif %}
+    - 根拠: {{ r.source.speaker }} {{ r.source.timestamp }}
+{% endfor %}
+{% else %}
+- （該当なし）
+{% endif %}
+
+## 4. 非対象
+{% if out_of_scope and out_of_scope|length>0 %}
+{% for r in out_of_scope %}
+- **{{ r.id }}** [{{ r.feature }}] {{ r.statement }}
+    - 根拠: {{ r.source.speaker }} {{ r.source.timestamp }}
+{% endfor %}
+{% else %}
+- （該当なし）
+{% endif %}
