@@ -1,6 +1,11 @@
 # 要件定義書
 
-生成日時: {{ generated_at }}  
+## 生成メタ
+- input_sha256: {{ labeled_meta.input_sha256 | default("") }}
+- model: {{ labeled_meta.model | default("") }}
+- temperature: {{ labeled_meta.temperature | default("") }}
+
+生成日時: {{ generated_at }}
 対象ログ: {{ source }}
 
 ## 1. 機能要件（FR）

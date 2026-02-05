@@ -1,15 +1,20 @@
-import json, re
-from pathlib import Path
-from datetime import datetime
-from jinja2 import Environment, FileSystemLoader, select_autoescape
-import config
+# gen_req.py
+from __future__ import annotations
 
-# 書き込み安全化（.tmp → 置換）
-def safe_write_text(path: Path, text: str):
+import re
+from datetime import datetime
+from pathlib import Path
+from typing import Any, Dict, List
+
+from jinja2 import Environment, FileSystemLoader, select_autoescape
+
+from normalize import load_profile, apply_replacements
+
+
+def safe_write_text(path: Path, text: str) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     tmp = Path(str(path) + ".tmp")
-    with open(tmp, "w", encoding="utf-8") as f:
-        f.write(text)
+    tmp.write_text(text, encoding="utf-8")
     try:
         tmp.replace(path)
     except PermissionError:
@@ -17,99 +22,112 @@ def safe_write_text(path: Path, text: str):
         tmp.replace(alt)
         print(f"[warn] {path} を更新できません（開かれている可能性）。別名で保存: {alt}")
 
-# トピック判定（決定・FR/NFR の整合に使用）
-TOPIC_KEYS = [
-    ("通知", ("通知","トースト")),
-    ("ログイン", ("ログイン","初期表示","サインイン")),
-    ("権限", ("管理者","編集","削除","権限")),
-    ("性能", ("3秒","パフォーマンス","表示","応答時間")),
-    ("文言", ("エラーメッセージ","文言","メッセージ")),
-    ("保持", ("保持期間","ログ","90日","保存期間")),
-    ("チュートリアル", ("チュートリアル","オンボーディング","ガイド")),
-    ("ボタン位置", ("ボタン","右下","中央下","中央下寄せ"))
-]
-def topic_of(text: str) -> str:
-    for key, kws in TOPIC_KEYS:
+
+def topic_of(text: str, topic_keys: List[List[Any]]) -> str:
+    for key, kws in topic_keys:
         if any(kw in text for kw in kws):
-            return key
+            return str(key)
     return "その他"
+
 
 def to_dt(ts: str):
     try:
-        return datetime.fromisoformat(ts.replace("Z",""))
+        return datetime.fromisoformat(ts.replace("Z", ""))
     except Exception:
         return datetime.min
 
-TENTATIVE_WORDS = ("一旦", "暫定", "候補", "保留", "検討中", "仮")
-def is_tentative(text: str) -> bool:
-    return any(w in text for w in TENTATIVE_WORDS)
 
-def complete_decision_text(decision, proposals_and_info):
-    s = decision["statement"]
+def is_tentative(text: str, tentative_words: List[str]) -> bool:
+    return any(w in text for w in tentative_words)
+
+
+def complete_decision_text(decision: Dict[str, Any], proposals_and_info: List[Dict[str, Any]]) -> Dict[str, Any]:
+    s = decision.get("statement", "")
     if s.startswith("文言") or "その文言で決定" in s:
-        # 直近の“文言系”提案/情報を探す
         for p in reversed(proposals_and_info):
-            if any(k in p["statement"] for k in ("エラーメッセージ","文言","メッセージ")):
-                decision["statement"] = f"エラーメッセージ文言を確定: {p['statement']}"
+            if any(k in p.get("statement", "") for k in ("エラーメッセージ", "文言", "メッセージ")):
+                decision["statement"] = f"エラーメッセージ文言を確定: {p.get('statement','')}"
                 break
     return decision
 
+
 def norm_text(t: str) -> str:
     t = re.sub(r"\s+", "", t)
-    t = t.replace("。","").replace("、","")
+    t = t.replace("。", "").replace("、", "")
     return t
 
-def dedup(items):
-    seen = set(); out = []
+
+def dedup(items: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    seen = set()
+    out = []
     for r in items:
-        key = (r.get("feature",""), r.get("category",""), norm_text(r.get("statement","")))
+        key = (r.get("feature", ""), r.get("category", ""), norm_text(r.get("statement", "")))
         if key not in seen:
-            seen.add(key); out.append(r)
+            seen.add(key)
+            out.append(r)
     return out
 
-def main():
-    Path(config.OUT_DIR).mkdir(parents=True, exist_ok=True)
-    recs = json.load(open(config.NORMALIZE, encoding="utf-8"))
 
-    # カテゴリ仕分け
-    fr  = [r for r in recs if r.get("category")=="functional"]
-    nfr = [r for r in recs if r.get("category")=="nonfunctional"]
-    dec = [r for r in recs if r.get("category")=="decision"]
+def generate_markdown(
+    normalized_data: Dict[str, Any],
+    template_path: str,
+    output_md_path: str,
+    source_path: str,
+) -> None:
+    meta = normalized_data.get("meta", {}) or {}
+    recs = normalized_data.get("records", []) or []
 
-    # 1) 決定：暫定語を含む“決定っぽい”文は決定から除外
-    dec = [d for d in dec if not is_tentative(d["statement"])]
+    profile_path = meta.get("profile_path") or "./profile.json"
+    profile = load_profile(profile_path)
 
-    # 2) 決定をトピックごとに最新へ集約
-    latest_decision_by_topic = {}
+    topic_keys = profile.get("topic_keys") or []
+    tentative_words = profile.get("tentative_words") or []
+
+    for r in recs:
+        r["statement"] = apply_replacements(str(r.get("statement", "")), profile)
+
+    fr = [r for r in recs if r.get("category") == "functional"]
+    nfr = [r for r in recs if r.get("category") == "nonfunctional"]
+    dec = [r for r in recs if r.get("category") == "decision"]
+
+    dec = [d for d in dec if not is_tentative(d.get("statement", ""), tentative_words)]
+
+    # topic集約：ただし "その他" は集約しない（汎化性の議論で不利になりやすいので）
+    latest_by_topic: Dict[str, Dict[str, Any]] = {}
+    keep_others: List[Dict[str, Any]] = []
+
     for r in dec:
-        t  = topic_of(r["statement"])
-        ts = (r.get("source") or {}).get("timestamp","")
-        if (t not in latest_decision_by_topic) or (to_dt(ts) > to_dt((latest_decision_by_topic[t].get("source") or {}).get("timestamp",""))):
-            latest_decision_by_topic[t] = r
-    dec = list(latest_decision_by_topic.values())
+        t = topic_of(r.get("statement", ""), topic_keys)
+        if t == "その他":
+            keep_others.append(r)
+            continue
+        ts = (r.get("source") or {}).get("timestamp", "")
+        if (t not in latest_by_topic) or (to_dt(ts) > to_dt((latest_by_topic[t].get("source") or {}).get("timestamp", ""))):
+            latest_by_topic[t] = r
 
-    # 3) 省略的な決定の具体化
-    proposals_and_info = [*fr, *nfr]  # 参照用
+    dec = list(latest_by_topic.values()) + keep_others
+
+    proposals_and_info = [*fr, *nfr]
     dec = [complete_decision_text(d, proposals_and_info) for d in dec]
 
-    # 4) 決定に従って FR/NFR を整理（除外/競合解消）
-    out_of_scope = []
-    kept_fr = []
-    kept_nfr = []
+    out_of_scope: List[Dict[str, Any]] = []
+    kept_fr: List[Dict[str, Any]] = []
+    kept_nfr: List[Dict[str, Any]] = []
 
     for r in fr:
-        topic = topic_of(r["statement"])
-        d  = latest_decision_by_topic.get(topic)
+        topic = topic_of(r.get("statement", ""), topic_keys)
+        d = latest_by_topic.get(topic)
         if not d:
-            kept_fr.append(r); continue
-        ds = d["statement"]
-        s  = r["statement"]
+            kept_fr.append(r)
+            continue
 
-        # 除外決定 → 対応FRはOut-of-Scope
+        ds = d.get("statement", "")
+        s = r.get("statement", "")
+
         if ("除外" in ds) or ("範囲から除外" in ds):
-            out_of_scope.append(r); continue
+            out_of_scope.append(r)
+            continue
 
-        # ボタン位置の競合（中央下 vs 右下）
         if topic == "ボタン位置":
             if ("中央下" in ds and "右下" in s) or ("右下" in ds and "中央下" in s):
                 continue
@@ -117,43 +135,45 @@ def main():
         kept_fr.append(r)
 
     for r in nfr:
-        topic = topic_of(r["statement"])
-        d  = latest_decision_by_topic.get(topic)
+        topic = topic_of(r.get("statement", ""), topic_keys)
+        d = latest_by_topic.get(topic)
         if d:
-            ds = d["statement"]
+            ds = d.get("statement", "")
             if ("除外" in ds) or ("範囲から除外" in ds):
-                out_of_scope.append(r); continue
+                out_of_scope.append(r)
+                continue
         kept_nfr.append(r)
 
     fr, nfr = kept_fr, kept_nfr
 
-    # 5) 重複の統合（FR/NFR/DECをそれぞれ）
-    fr  = dedup(fr)
+    fr = dedup(fr)
     nfr = dedup(nfr)
     dec = dedup(dec)
 
-    # 6) 決定は“新しい順”に
     def to_dt_from_rec(r):
-        return to_dt((r.get("source") or {}).get("timestamp",""))
+        return to_dt((r.get("source") or {}).get("timestamp", ""))
+
     dec = sorted(dec, key=to_dt_from_rec, reverse=True)
 
-    # 7) テンプレ適用
+    tpl_path = Path(template_path)
     env = Environment(
-        loader=FileSystemLoader(str(config.TPL_DIR)),
+        loader=FileSystemLoader(str(tpl_path.parent)),
         autoescape=select_autoescape(),
-        trim_blocks=True, lstrip_blocks=True
+        trim_blocks=True,
+        lstrip_blocks=True,
     )
-    tpl = env.get_template("req.md.j2")
-    out = tpl.render(
+    tpl = env.get_template(tpl_path.name)
+
+    rendered = tpl.render(
         generated_at=datetime.now().strftime("%Y-%m-%d %H:%M"),
-        source=str(config.NORMALIZE),
-        fr=fr, nfr=nfr, dec=dec,
-        out_of_scope=out_of_scope
+        source=source_path,
+        labeled_meta=meta,
+        fr=fr,
+        nfr=nfr,
+        dec=dec,
+        out_of_scope=out_of_scope,
     )
 
-    safe_write_text(Path(config.NORMALIZE_OUTPUT), out)
-    print(f"[ok] 正規化仕様書を出力: {config.NORMALIZE_OUTPUT}")
+    safe_write_text(Path(output_md_path), rendered)
+    print(f"[ok] 仕様書を出力: {output_md_path}")
     print(f"[debug] FR:{len(fr)} NFR:{len(nfr)} DEC:{len(dec)} OOS:{len(out_of_scope)}")
-
-if __name__ == "__main__":
-    main()
