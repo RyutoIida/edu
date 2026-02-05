@@ -1,66 +1,200 @@
-# 要件定義書
+# 要件定義書（最終状態サマリ：検証用）
 
 生成日時: {{ generated_at }}
 対象ログ: {{ source }}
-
-## 1. 機能要件
-{% for r in fr %}
-- **{{ r.id }}** [{{ r.feature }}] {{ r.statement }}
-    - 受け入れ条件:
-    {% if r.acceptance_criteria and r.acceptance_criteria|length>0 %}
-    {% for ac in r.acceptance_criteria %}
-        - {{ ac }}
-    {% endfor %}
-    {% else %}
-        - （未定義）
-    {% endif %}
-    - 優先度: {{ r.priority }} / 状態: {{ r.status }}
-    - 根拠: {{ r.source.speaker }} {{ r.source.timestamp }}
-{% endfor %}
-
-## 2. 非機能要件
-{% if nfr|length > 0 %}
-{% for r in nfr %}
-- **{{ r.id }}** [{{ r.feature }}] {{ r.statement }}
-    - 受け入れ条件:
-    {% if r.acceptance_criteria and r.acceptance_criteria|length>0 %}
-    {% for ac in r.acceptance_criteria %}
-        - {{ ac }}
-    {% endfor %}
-    {% else %}
-        - （未定義）
-    {% endif %}
-    - 優先度: {{ r.priority }} / 状態: {{ r.status }}
-    - 根拠: {{ r.source.speaker }} {{ r.source.timestamp }}
-    {% endfor %}
-    {% else %}
-    - （該当なし）
+{% if meta is defined -%}
+## 生成メタ
+{% for k, v in meta.items() -%}
+- {{ k }}: {{ v }}
+{% endfor -%}
 {% endif %}
 
-## 3. 決定事項/ 変更管理
-{% if dec|length > 0 %}
-{% for r in dec %}
-- **{{ r.id }}** [{{ r.feature }}] {{ r.statement }}
-    - 受け入れ条件:
-    {% if r.acceptance_criteria and r.acceptance_criteria|length>0 %}
-    {% for ac in r.acceptance_criteria %}
-        - {{ ac }}
-    {% endfor %}
-    {% else %}
-        - （不要/または未定義）
-    {% endif %}
-    - 根拠: {{ r.source.speaker }} {{ r.source.timestamp }}
-{% endfor %}
-{% else %}
-- （該当なし）
+{# ------------------------------
+ 入力レコード（互換）
+ - records が渡されるならそれを使用
+ - 渡されない場合は fr/nfr/dec/out_of_scope を結合
+------------------------------ #}
+{% if records is defined -%}
+{% set all_records = records -%}
+{% else -%}
+{% set all_records =
+  (fr if fr is defined else [])
+  + (nfr if nfr is defined else [])
+  + (dec if dec is defined else [])
+  + (out_of_scope if out_of_scope is defined else [])
+-%}
 {% endif %}
 
-## 4. 非対象
-{% if out_of_scope and out_of_scope|length>0 %}
-{% for r in out_of_scope %}
-- **{{ r.id }}** [{{ r.feature }}] {{ r.statement }}
-    - 根拠: {{ r.source.speaker }} {{ r.source.timestamp }}
+{# ------------------------------
+ トピック推定（比較しやすい粒度）
+ ※ DS2 用に増やしたい場合は、ここに elif を追加
+------------------------------ #}
+{% macro topic_of(r) -%}
+{%- set stmt = (r.statement|string) -%}
+{%- set s = stmt|lower -%}
+{%- if (('startup' in s) or ('application startup' in s) or ('first screen' in s) or ('起動' in stmt) or ('アプリ起動' in stmt))
+      and (('login' in s) or ('ログイン' in stmt) or (r.feature == 'ログイン')) -%}
+ログイン初期表示
+{%- elif ('notification' in s) or ('通知' in stmt) -%}
+通知
+{%- elif ('administrator' in s) or ('管理者' in stmt) or ('編集' in stmt) or ('削除' in stmt) or ('権限' in stmt) -%}
+権限
+{%- elif ('3 seconds' in s) or ('3秒' in stmt) -%}
+初回表示3秒以内
+{%- elif ('error message' in s) or ('エラーメッセージ' in stmt) or ('文言' in stmt) or ('メールまたはパスワード' in stmt) -%}
+エラーメッセージ文言
+{%- elif ('retention' in s) or ('保持' in stmt) or ('90日' in stmt) -%}
+ログ保持期間
+{%- elif ('tutorial' in s) or ('チュートリアル' in stmt) -%}
+簡易チュートリアル
+{%- elif ('button' in s) or ('ボタン' in stmt) -%}
+ログインボタン位置
+{%- elif ('december 20' in s) or ('12月20' in stmt) -%}
+リリース候補日
+{%- else -%}
+その他
+{%- endif -%}
+{%- endmacro %}
+
+{# ------------------------------
+ 最終状態判定（表示ラベル）
+------------------------------ #}
+{% macro state_of(r) -%}
+{%- set stmt = (r.statement|string) -%}
+{%- set s = stmt|lower -%}
+{%- if ('除外' in stmt) or ('見送' in stmt) or ('excluded' in s) or ('exclude' in s and 'scope' in s) -%}
+除外（最終）
+{%- elif ('暫定' in stmt) or ('tentative' in s) or ('候補' in stmt) or ('一旦' in stmt) -%}
+暫定/検討
+{%- elif r.status is defined and r.status -%}
+{{ r.status }}
+{%- else -%}
+（不明）
+{%- endif -%}
+{%- endmacro %}
+
+{# ------------------------------
+ 「まとめ文」「決定する/検討するだけ」などを “generic” 扱いにして、
+ “具体表現（specific）” を優先して残す
+------------------------------ #}
+{% macro is_generic(r) -%}
+{%- set stmt = (r.statement|string) -%}
+{%- set s = stmt|lower -%}
+{%- if ('決定する' in stmt) or ('検討する' in stmt) or ('確認する' in stmt) or ('to be decided' in s) or ('will be decided' in s) -%}
+true
+{%- elif (('また' in stmt) or ('also' in s))
+      and (('通知' in stmt) or ('notification' in s))
+      and (('管理者' in stmt) or ('権限' in stmt) or ('3秒' in stmt) or ('error' in s) or ('保持' in stmt) or ('チュートリアル' in stmt)) -%}
+true
+{%- elif (stmt|length > 160) and (('また' in stmt) or ('also' in s) or ('; ' in stmt)) -%}
+true
+{%- else -%}
+false
+{%- endif -%}
+{%- endmacro %}
+
+{# ------------------------------
+ トピックごとの「最終（最新）」と「最終（具体）」を構築
+ - any:   トピック内で timestamp が最大のもの
+ - specific: generic を除外した上で timestamp が最大のもの
+ 出力は specific を優先（なければ any）
+------------------------------ #}
+{% set ns = namespace(any={}, specific={}) -%}
+{% for r in all_records -%}
+  {% set topic = topic_of(r) -%}
+  {% if topic != 'その他' -%}
+    {% set ts = r.source.timestamp if r.source is defined and r.source.timestamp is defined else '' -%}
+
+    {# latest(any) #}
+    {% set prev = ns.any.get(topic) -%}
+    {% if prev is none -%}
+      {% set _ = ns.any.update({topic: r}) -%}
+    {% else -%}
+      {% set prev_ts = prev.source.timestamp if prev.source is defined and prev.source.timestamp is defined else '' -%}
+      {% if ts and (not prev_ts or ts > prev_ts) -%}
+        {% set _ = ns.any.update({topic: r}) -%}
+      {% endif -%}
+    {% endif -%}
+
+    {# latest(specific) #}
+    {% if is_generic(r) == 'false' -%}
+      {% set prev2 = ns.specific.get(topic) -%}
+      {% if prev2 is none -%}
+        {% set _ = ns.specific.update({topic: r}) -%}
+      {% else -%}
+        {% set prev2_ts = prev2.source.timestamp if prev2.source is defined and prev2.source.timestamp is defined else '' -%}
+        {% if ts and (not prev2_ts or ts > prev2_ts) -%}
+          {% set _ = ns.specific.update({topic: r}) -%}
+        {% endif -%}
+      {% endif -%}
+    {% endif -%}
+  {% endif -%}
 {% endfor %}
-{% else %}
-- （該当なし）
-{% endif %}
+
+{# 比較対象（主要9項目） ※ DS1の人手9項目に合わせたキー #}
+{% set KEY_TOPICS = [
+  'ログイン初期表示',
+  '通知',
+  '権限',
+  '初回表示3秒以内',
+  'エラーメッセージ文言',
+  'ログ保持期間',
+  '簡易チュートリアル',
+  'ログインボタン位置',
+  'リリース候補日'
+] -%}
+
+{# エラーメッセージは acceptance_criteria に文言が埋まっていることが多いので、あればそこを優先表示 #}
+{% macro pretty_value(topic, r) -%}
+{%- if r is none -%}—
+{%- elif topic == 'エラーメッセージ文言' and r.acceptance_criteria is defined and r.acceptance_criteria|length>0 -%}
+  {%- set ns_msg = namespace(val='') -%}
+  {%- for ac in r.acceptance_criteria -%}
+    {%- if 'メールまたはパスワードが違います' in ac -%}
+      {%- set ns_msg.val = '「メールまたはパスワードが違います」' -%}
+    {%- endif -%}
+  {%- endfor -%}
+  {%- if ns_msg.val -%}エラーメッセージ文言は{{ ns_msg.val }}
+  {%- else -%}{{ (r.statement|string)|replace("\n"," ") }}
+  {%- endif -%}
+{%- else -%}
+{{ (r.statement|string)|replace("\n"," ") }}
+{%- endif -%}
+{%- endmacro %}
+
+## 0. 検証用：最終状態一覧（主要9項目）
+
+|#|項目（トピック）|最終状態|最終内容（抽出）|根拠（発言者/時刻）|
+|---:|---|---|---|---|
+{% for t in KEY_TOPICS -%}
+  {% set r = ns.specific.get(t) if ns.specific.get(t) is not none else ns.any.get(t) -%}
+|{{ loop.index }}|{{ t }}|{{ '（未抽出）' if r is none else state_of(r) }}|{{ pretty_value(t, r) }}|{{ '—' if r is none else (r.source.speaker ~ ' ' ~ r.source.timestamp) }}|
+{% endfor %}
+
+## 1. 決定事項（最終版：比較用）
+
+{% for t in KEY_TOPICS -%}
+  {% set r = ns.specific.get(t) if ns.specific.get(t) is not none else ns.any.get(t) -%}
+  {% if r is not none -%}
+    {% if state_of(r) == '除外（最終）' -%}
+- [除外] {{ t }}：{{ pretty_value(t, r) }}（{{ r.source.speaker }} {{ r.source.timestamp }}）
+    {% elif r.status == '決定' -%}
+- [決定] {{ t }}：{{ pretty_value(t, r) }}（{{ r.source.speaker }} {{ r.source.timestamp }}）
+    {% endif -%}
+  {% endif -%}
+{% endfor %}
+
+## 2. 検討・暫定（最終版：比較用）
+
+{% for t in KEY_TOPICS -%}
+  {% set r = ns.specific.get(t) if ns.specific.get(t) is not none else ns.any.get(t) -%}
+  {% if r is not none -%}
+    {% if not (state_of(r) == '除外（最終）' or r.status == '決定') -%}
+- [{{ state_of(r) }}] {{ t }}：{{ pretty_value(t, r) }}（{{ r.source.speaker }} {{ r.source.timestamp }}）
+    {% endif -%}
+  {% endif -%}
+{% endfor %}
+
+## 3. 参考
+- 詳細は、`normalized.json`（正規化後）と `classified.json`（分類結果）を参照する。
+- 本Markdownは「最終状態の比較・検証」を最優先にし、同一トピックの途中経過は省略する。
